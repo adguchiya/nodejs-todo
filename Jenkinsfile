@@ -1,6 +1,6 @@
 pipeline {
     agent any
-
+    
     stages {
         stage("code") {
             steps {
@@ -8,14 +8,14 @@ pipeline {
                 git url: "https://github.com/adguchiya/nodejs-todo.git", branch: "main"
             }
         }
-
+        
         stage("build") {
             steps {
                 echo "Building the Docker image"
                 sh "docker build -t new-todo:latest ."
             }
         }
-
+        
         stage("push to dh") {
             steps {
                 echo "Pushing the Docker image to Docker Hub"
@@ -26,27 +26,31 @@ pipeline {
                 }
             }
         }
-
+        
         stage("deploy") {
-            environment {
-                KUBECONFIG = credentials('kubeconfig')
-            }
             steps {
                 echo "Deploying the Docker container"
-                sh "kubectl config use-context minikube" // Optional if using a different context
-                sh "kubectl delete deployment todo-deployment --ignore-not-found=true"
                 sh "kubectl apply -f deployment.yml"
                 sh "kubectl apply -f service.yml"
-                sh "kubectl port-forward service/todo-service 8001:8001 &"
+                sh "kubectl port-forward service/new-todo 8001:8001 &"
+                sh "sleep 5" // Wait for port forwarding to establish the tunnel
             }
         }
-
+        
         stage("test") {
             steps {
-                echo "Waiting for the service to be available"
-                sh "sleep 10"
-                echo "Accessing the service on localhost:8001"
-                sh "curl http://localhost:8001"
+                echo "Running tests"
+                sh "npm install"
+                sh "npm test"
+            }
+        }
+        
+        stage("cleanup") {
+            steps {
+                echo "Cleaning up"
+                sh "kubectl delete -f service.yml"
+                sh "kubectl delete -f deployment.yml"
+                sh "killall kubectl" // Stop the port forwarding
             }
         }
     }
