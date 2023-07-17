@@ -30,7 +30,7 @@ pipeline {
         stage("deploy") {
             steps {
                 echo "Configuring kubeconfig"
-                sh "cp /path/to/kubeconfig ~/.kube/config"
+                sh "cp /full/file/path/kubeconfig /var/lib/jenkins/.kube/config"
                 
                 echo "Deploying the Docker container"
                 sh "kubectl apply -f deployment.yml"
