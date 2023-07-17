@@ -1,28 +1,52 @@
 pipeline {
-    agent { label "dev-server" }
-    stages{
-        stage("Clone Code"){
-            steps{
-                git url: "https://github.com/LondheShubham153/node-todo-cicd.git", branch: "master"
+    agent any
+
+    stages {
+        stage("code") {
+            steps {
+                echo "Cloning the code"
+                git url: "https://github.com/adguchiya/nodejs-todo.git", branch: "main"
             }
         }
-        stage("Build and Test"){
-            steps{
-                sh "docker build . -t node-app-test-new"
+
+        stage("build") {
+            steps {
+                echo "Building the Docker image"
+                sh "docker build -t new-todo:latest ."
             }
         }
-        stage("Push to Docker Hub"){
-            steps{
-                withCredentials([usernamePassword(credentialsId:"dockerHub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
-                sh "docker tag node-app-test-new ${env.dockerHubUser}/node-app-test-new:latest"
-                sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
-                sh "docker push ${env.dockerHubUser}/node-app-test-new:latest"
+
+        stage("push to dh") {
+            steps {
+                echo "Pushing the Docker image to Docker Hub"
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    sh "docker tag new-todo:latest ${DOCKER_USERNAME}/new-todo:latest"
+                    sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                    sh "docker push ${DOCKER_USERNAME}/new-todo:latest"
                 }
             }
         }
-        stage("Deploy"){
-            steps{
-                sh "docker-compose down && docker-compose up -d"
+
+        stage("deploy") {
+            environment {
+                KUBECONFIG = credentials('kubeconfig')
+            }
+            steps {
+                echo "Deploying the Docker container"
+                sh "kubectl config use-context minikube" // Optional if using a different context
+                sh "kubectl delete deployment todo-deployment --ignore-not-found=true"
+                sh "kubectl apply -f deployment.yml"
+                sh "kubectl apply -f service.yml"
+                sh "kubectl port-forward service/todo-service 8001:8001 &"
+            }
+        }
+
+        stage("test") {
+            steps {
+                echo "Waiting for the service to be available"
+                sh "sleep 10"
+                echo "Accessing the service on localhost:8001"
+                sh "curl http://localhost:8001"
             }
         }
     }
