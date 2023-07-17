@@ -29,6 +29,9 @@ pipeline {
         
         stage("deploy") {
             steps {
+                echo "Configuring kubeconfig"
+                sh "cp /path/to/kubeconfig ~/.kube/config"
+                
                 echo "Deploying the Docker container"
                 sh "kubectl apply -f deployment.yml"
                 sh "kubectl apply -f service.yml"
