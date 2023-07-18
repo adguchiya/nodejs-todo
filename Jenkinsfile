@@ -21,7 +21,7 @@ pipeline {
                 echo "pushing code on docker hub"
                 withCredentials([
                     usernamePassword(
-                        creadentialId: "dockerhub" ,
+                        credentialId: "dockerhub" ,
                         usernameVariable : "d_user" ,
                         passwordVariable : "d_pass" 
                     ){ 
