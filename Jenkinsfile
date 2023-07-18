@@ -1,42 +1,35 @@
 pipeline {
-    agent any
-    
-    stages {
-        stage("code") {
-            steps {
-                echo "Cloning the code"
-                git url: "https://github.com/adguchiya/nodejs-todo.git", branch: "main"
-            }
+    agent any 
+    stages{
+        stage("git code"){
+            echo "code comming from git"
+            git url: "https://github.com/adguchiya/nodejs-todo.git" , branch : "main"
         }
-        
-        stage("build") {
-            steps {
-                echo "Building the Docker image"
-                sh "docker build -t new-todo:latest ."
-            }
+
+        stage("Build the code"){
+            echo "build the code with docker"
+            sh "docker build -t new-todo:latest ."
         }
-        
-        stage("push to dh") {
-            steps {
-                echo "Pushing the Docker image to Docker Hub"
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                    sh "docker tag new-todo:latest ${DOCKER_USERNAME}/new-todo:latest"
-                    sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
-                    sh "docker push ${DOCKER_USERNAME}/new-todo:latest"
-                }
-            }
+
+        stage("pushing code in DockerHub"){
+            echo "push code in docker hub"
+            withCredentials([
+                usernamePassword(
+                    credentialId : "dockerhub" ,
+                    usernameVariable : "d_user" , 
+                    passwordVariable : "d_pass"
+                )
+            ])
+            sh "docker tag new-todo:latest $d_user/new-todo:latest"
+            sh "docker login -u $d_user  -p $d_pass"
+            sh "docker push $d_user/new-todo:latest"
+
         }
-        
         stage("deploy") {
-            steps {
-               
-                echo "Deploying the Docker container"
-               sh "docker-compose down"
-               sh "docker-compose up -d"
-            }
+            echo "deploy the docker hub image by running docker container"
+            sh "docker-compose down"
+            sh "docker-compose up -d"
         }
-        
-     
-   
     }
 }
+
