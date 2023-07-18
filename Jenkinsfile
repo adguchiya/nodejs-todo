@@ -31,10 +31,8 @@ pipeline {
             steps {
                
                 echo "Deploying the Docker container"
-                sh "kubectl apply -f deployment.yml"
-                sh "kubectl apply -f service.yml"
-                sh "kubectl port-forward service/new-todo 8001:8001 &"
-                sh "sleep 5" // Wait for port forwarding to establish the tunnel
+               sh "docker-compose down"
+               sh "docker-compose up -d"
             }
         }
         
