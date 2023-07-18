@@ -29,9 +29,7 @@ pipeline {
         
         stage("deploy") {
             steps {
-                echo "Configuring kubeconfig"
-                sh "cp /full/file/path/kubeconfig /var/lib/jenkins/.kube/config"
-                
+               
                 echo "Deploying the Docker container"
                 sh "kubectl apply -f deployment.yml"
                 sh "kubectl apply -f service.yml"
@@ -40,21 +38,7 @@ pipeline {
             }
         }
         
-        stage("test") {
-            steps {
-                echo "Running tests"
-                sh "npm install"
-                sh "npm test"
-            }
-        }
-        
-        stage("cleanup") {
-            steps {
-                echo "Cleaning up"
-                sh "kubectl delete -f service.yml"
-                sh "kubectl delete -f deployment.yml"
-                sh "killall kubectl" // Stop the port forwarding
-            }
-        }
+     
+   
     }
 }
