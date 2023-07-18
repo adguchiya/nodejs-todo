@@ -16,22 +16,23 @@ pipeline {
             }    
         }
 
-        stage("pushing code on docker hub"){
+      stage("pushing code on docker hub"){
             steps{
                 echo "pushing code on docker hub"
                 withCredentials([
                     usernamePassword(
-                        credentialId: "dockerhub" ,
-                        usernameVariable : "d_user" ,
-                        passwordVariable : "d_pass" 
-                    ){ 
-                        sh "docker tag new-todo:latest  $d_user/new-todo:latest"
-                        sh "docker login -u $d_user -p $d_pass"
-                        sh "docker push $d_user/new-todo:latest"
-                    }
-                ])
+                        credentialsId: "dockerhub",
+                        usernameVariable: "d_user",
+                        passwordVariable: "d_pass"
+                    )
+                ]){ 
+                    sh "docker tag new-todo:latest $d_user/new-todo:latest"
+                    sh "docker login -u $d_user -p $d_pass"
+                    sh "docker push $d_user/new-todo:latest"
+                }
             }
-        }
+}
+
 
         stage("deploy"){
             steps{
