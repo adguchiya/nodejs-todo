@@ -24,10 +24,12 @@ pipeline {
                         usernameVariable: "d_user",
                         passwordVariable: "d_pass"
                     )
-                ]) 
+                ]) {
                     sh "docker tag new-todo:latest $d_user/new-todo:latest"
                     sh "docker login -u $d_user -p $d_pass"
                     sh "docker push $d_user/new-todo:latest"
+                }
+                  
                 
             }
         }
