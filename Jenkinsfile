@@ -2,7 +2,7 @@ pipeline {
     agent any 
 
     environment {
-        PATH = "$PATH:~/sonar-scanner/bin"
+        PATH = "$PATH:/var/lib/jenkins/sonar-scanner-cli-4.8.0.2856-linux/bin"
     }
 
     stages {
