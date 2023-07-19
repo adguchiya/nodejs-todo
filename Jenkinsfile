@@ -9,6 +9,17 @@ pipeline {
             }
         }
 
+
+        stage("code quality"){
+            steps{
+                echo "Running SonarQube analysis"
+                withSonarQubeEnv('sonarqube server') {
+                    sh "sonar-scanner"
+                }
+            }
+}
+
+
         stage("build the code"){
             steps{
                 echo "build the code as docker image"
