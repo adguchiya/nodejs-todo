@@ -2,7 +2,7 @@ pipeline {
     agent any 
 
     environment {
-        PATH = "$PATH:/path/to/sonar-scanner-directory/bin"
+        PATH = "$PATH:~/sonar-scanner/bin"
     }
 
     stages {
@@ -16,7 +16,7 @@ pipeline {
         stage("code quality") {
             steps {
                 echo "Running SonarQube analysis"
-                withSonarQubeEnv('SONARQUBE_HOME') {
+                withSonarQubeEnv('sonarqube') {
                     sh "sonar-scanner"
                 }
             }
