@@ -30,15 +30,15 @@ pipeline {
                     sh "docker login -u $username -p $password"
                     sh "docker push $username/new-todo:latest"
                 }
-            }
+            }    
+        }
 
-            stage("deploy"){
+        stage("deploy"){
                 steps{
                     echo "deploying image as a container"
                     sh "docker-compose  down"
                     sh "docker-compose up -d"
                 }
             }
-        }
     }
 }
