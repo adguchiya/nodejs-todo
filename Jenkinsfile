@@ -2,42 +2,43 @@ pipeline {
     agent any 
 
     stages{
-        stage(" gitCode"){
+        stage("git code"){
             steps{
-                echo "cloning code from git"
-                git url : "https://github.com/adguchiya/nodejs-todo.git" , branch : "main"
+                echo "git cloning"
+                git url : "https://github.com/adguchiya/nodejs-todo.git" branch : "main"
             }
         }
 
-        stage("dockerBuildImage"){
+        stage("build"){
             steps{
-                echo "building the image by using docker image"
-                sh "docker build -t  new-todo:latest ."
+                echo "building the docker image"
+                sh "docker build -t new-todo:latest"
             }
         }
 
-        stage("pushCodeToDockerHub"){
+        stage("push"){
             steps{
-                echo "pushing code to docker hub"
-                withCredentials([
+                echo "pushing docker image to docker hub"
+                withcredentials([
                     usernamePassword(
                         credentialsId : "dockerhub" , 
-                        usernameVariable : "username" , 
-                        passwordVariable : "password" 
+                        usernameVariable : "username" ,
+                        passwordVariable : "password"
                     )
                 ]){
                     sh "docker tag new-todo:latest $username/new-todo:latest"
                     sh "docker login -u $username -p $password"
                     sh "docker push $username/new-todo:latest"
                 }
-        }
             }
 
-            stage("deployAsDockerContainer"){
+            stage("deploy"){
                 steps{
-                    sh "docker-compose down"
+                    echo "deploying image as a container"
+                    sh "docker-compose  down"
                     sh "docker-compose up -d"
                 }
             }
+        }
     }
 }
