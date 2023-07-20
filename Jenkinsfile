@@ -5,7 +5,7 @@ pipeline {
         stage("git code"){
             steps{
                 echo "git cloning"
-                git url : "https://github.com/adguchiya/nodejs-todo.git" branch : "main"
+                git url : "https://github.com/adguchiya/nodejs-todo.git" , branch : "main"
             }
         }
 
