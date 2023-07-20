@@ -1,57 +1,43 @@
 pipeline {
     agent any 
 
-    environment {
-        PATH = "$PATH:/opt/sonar-scanner/bin"
-    }
-
-    stages {
-        stage("git code") {
-            steps {
-                echo "Cloning code from git"
-                git url: "https://github.com/adguchiya/nodejs-todo.git", branch: "main"
+    stages{
+        stage(" gitCode"){
+            steps{
+                echo "cloning code from git"
+                git url : "https://github.com/adguchiya/nodejs-todo.git" , branch : "main"
             }
         }
 
-        stage("code quality") {
-            steps {
-                echo "Running SonarQube analysis"
-                withSonarQubeEnv('sonarqube') {
-                    sh "mvn sonar:sonar"
-                }
+        stage("dockerBuildImage"){
+            steps{
+                echo "building the image by using docker image"
+                sh "docker build -t  new-todo:latest ."
             }
         }
 
-        stage("build the code") {
-            steps {
-                echo "Build the code as a docker image"
-                sh "docker build -t new-todo:latest ."
-            }
-        }
-
-        stage("pushing code on docker hub") {
-            steps {
-                echo "Pushing code on docker hub"
+        stage("pushCodeToDockerHub"){
+            steps{
+                echo "pushing code to docker hub"
                 withCredentials([
                     usernamePassword(
-                        credentialsId: "dockerhub",
-                        usernameVariable: "d_user",
-                        passwordVariable: "d_pass"
+                        credentialsId : "dockerhub" , 
+                        usernameVariable : "username" , 
+                        passwordVariable : "password" 
                     )
-                ]) { 
-                    sh "docker tag new-todo:latest $d_user/new-todo:latest"
-                    sh "docker login -u $d_user -p $d_pass"
-                    sh "docker push $d_user/new-todo:latest"
+                ]){
+                    sh "docker tag new-todo:latest $username/new-todo:latest"
+                    sh "docker login -u $username -p $password"
+                    sh "dpcker push $username/new-todo:latest"
+                }
+        }
+            }
+
+            stage("deployAsDockerContainer"){
+                steps{
+                    sh "docker-compose down"
+                    sh "docker-compose up -d"
                 }
             }
-        }
-
-        stage("deploy") {
-            steps {
-                echo "Deploying code as a docker container"
-                sh "docker-compose down"
-                sh "docker-compose up -d"
-            }
-        }
     }
 }
