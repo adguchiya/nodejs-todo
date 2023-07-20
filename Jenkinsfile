@@ -28,7 +28,7 @@ pipeline {
                 ]){
                     sh "docker tag new-todo:latest $username/new-todo:latest"
                     sh "docker login -u $username -p $password"
-                    sh "dpcker push $username/new-todo:latest"
+                    sh "docker push $username/new-todo:latest"
                 }
         }
             }
