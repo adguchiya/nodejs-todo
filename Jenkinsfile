@@ -12,7 +12,7 @@ pipeline {
         stage("build"){
             steps{
                 echo "building the docker image"
-                sh "docker build -t new-todo:latest"
+                sh "docker build -t new-todo:latest ."
             }
         }
 
