@@ -1,9 +1,10 @@
 pipeline {
     agent any 
 
-    environment {
-        PATH = "$PATH:~/sonar-scanner/bin"
-    }
+//    environment {
+//     PATH = "$PATH:/opt/sonar-scanner/bin"
+// }
+
 
     stages {
         stage("git code") {
@@ -13,14 +14,14 @@ pipeline {
             }
         }
 
-        stage("code quality") {
-            steps {
-                echo "Running SonarQube analysis"
-                withSonarQubeEnv('sonarqube') {
-                    sh "sonar-scanner"
-                }
-            }
-        }
+        // stage("code quality") {
+        //     steps {
+        //         echo "Running SonarQube analysis"
+        //         withSonarQubeEnv('sonarqube') {
+        //             sh "sonar-scanner"
+        //         }
+        //     }
+        // }
 
         stage("build the code") {
             steps {
