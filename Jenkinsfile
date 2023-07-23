@@ -8,6 +8,23 @@ pipeline {
                 git url: "https://github.com/adguchiya/nodejs-todo.git", branch: "main"
             }
         }
+
+         stage("SonarQube Analysis") {
+            steps {
+                echo "Running SonarQube analysis with Docker"
+                withEnv(["SONAR_HOST_URL=http://172.17.0.1:9000",
+                         "SONAR_PROJECT_KEY=todoapp",
+                         "SONAR_TOKEN=sqa_7cdbd4c459d60f6ee360c2dde16bc566dca70ff4",
+                         "SONAR_SCANNER_OPTS=-Dsonar.projectKey=todoapp"]) {
+                    sh "docker run --rm \
+                         -e SONAR_HOST_URL=${SONAR_HOST_URL} \
+                         -e SONAR_SCANNER_OPTS=${SONAR_SCANNER_OPTS} \
+                         -e SONAR_TOKEN=${SONAR_TOKEN} \
+                         -v /var/lib/jenkins/workspace/todoapp:/usr/src \
+                         sonarsource/sonar-scanner-cli"
+                }
+            }
+        }
         
         stage("build") {
             steps {
@@ -35,21 +52,6 @@ pipeline {
             }
         }
         
-        stage("SonarQube Analysis") {
-            steps {
-                echo "Running SonarQube analysis with Docker"
-                withEnv(["SONAR_HOST_URL=http://172.17.0.1:9000",
-                         "SONAR_PROJECT_KEY=todoapp",
-                         "SONAR_TOKEN=sqa_7cdbd4c459d60f6ee360c2dde16bc566dca70ff4",
-                         "SONAR_SCANNER_OPTS=-Dsonar.projectKey=todoapp"]) {
-                    sh "docker run --rm \
-                         -e SONAR_HOST_URL=${SONAR_HOST_URL} \
-                         -e SONAR_SCANNER_OPTS=${SONAR_SCANNER_OPTS} \
-                         -e SONAR_TOKEN=${SONAR_TOKEN} \
-                         -v /var/lib/jenkins/workspace/todoapp:/usr/src \
-                         sonarsource/sonar-scanner-cli"
-                }
-            }
-        }
+       
     }
 }
