@@ -11,7 +11,7 @@
 version: '3'
 services:
   web:
-    image: adguchiya/new-todo:latest
+    image: adguchiya/todo-node:latest
     ports:
       - 8003:8003
     restart: always 
