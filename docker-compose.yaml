@@ -13,5 +13,5 @@ services:
   web:
     image: adguchiya/new-todo:latest
     ports:
-      - 8001:8001
+      - 8003:8003
     restart: always

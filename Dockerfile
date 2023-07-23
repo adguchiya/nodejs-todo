@@ -22,7 +22,7 @@ RUN npm install
 COPY . .
 
 # Set the port number
-ENV PORT=8001
+ENV PORT=8003
 
 # Expose the specified port
 EXPOSE $PORT
